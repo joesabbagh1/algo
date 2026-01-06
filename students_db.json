@@ -1,0 +1,50 @@
+[
+  {
+    "student_id": "S001",
+    "first_name": "Alice",
+    "last_name": "Johnson",
+    "course_name": "Data Structures",
+    "semester": "Fall 2024",
+    "final_grade": 92.5
+  },
+  {
+    "student_id": "S002",
+    "first_name": "Bob",
+    "last_name": "Smith",
+    "course_name": "Algorithms",
+    "semester": "Spring 2024",
+    "final_grade": 78.0
+  },
+  {
+    "student_id": "S003",
+    "first_name": "Charlie",
+    "last_name": "Brown",
+    "course_name": "Data Structures",
+    "semester": "Fall 2024",
+    "final_grade": 85.5
+  },
+  {
+    "student_id": "S004",
+    "first_name": "Diana",
+    "last_name": "Williams",
+    "course_name": "Computer Networks",
+    "semester": "Spring 2024",
+    "final_grade": 95.0
+  },
+  {
+    "student_id": "S005",
+    "first_name": "Eve",
+    "last_name": "Davis",
+    "course_name": "Algorithms",
+    "semester": "Fall 2024",
+    "final_grade": 65.5
+  },
+  {
+    "student_id": "999",
+    "first_name": "jjj",
+    "last_name": "hhh",
+    "course_name": "hhhjj",
+    "semester": "8",
+    "final_grade": 90.0
+  }
+]
