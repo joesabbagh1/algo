@@ -260,73 +260,150 @@ def sort_records(students: List[Dict[str, Any]]) -> None:
         print("Sort order saved.")
 
 
-def filter_records(students: List[Dict[str, Any]]) -> None:
-    """Filter/search records by one or more criteria."""
+def binary_search(students: List[Dict[str, Any]], attribute: str, search_value: Any) -> List[Dict[str, Any]]:
+    """
+    Binary search algorithm implementation from scratch.
+    Searches for records matching the search value in a sorted list.
+    
+    Args:
+        students: Sorted list of student dictionaries to search
+        attribute: The attribute key to search by
+        search_value: The value to search for
+    
+    Returns:
+        A list of matching student records
+    """
     if not students:
-        print("\nNo records to filter.")
-        return
+        return []
     
-    print("\n--- Filter/Search Records ---")
-    print("Enter search criteria (press Enter to skip a field):")
+    results = []
+    left = 0
+    right = len(students) - 1
     
-    filters = {}
+    # Binary search for the first occurrence
+    first_index = -1
+    while left <= right:
+        mid = (left + right) // 2
+        mid_value = students[mid][attribute]
+        
+        # Compare values (handles both string and numeric types)
+        if isinstance(search_value, (int, float)) and isinstance(mid_value, (int, float)):
+            # Numeric comparison
+            if mid_value == search_value:
+                first_index = mid
+                right = mid - 1  # Continue searching left for first occurrence
+            elif mid_value < search_value:
+                left = mid + 1
+            else:
+                right = mid - 1
+        else:
+            # String comparison (case-insensitive)
+            mid_str = str(mid_value).lower()
+            search_str = str(search_value).lower()
+            if mid_str == search_str:
+                first_index = mid
+                right = mid - 1  # Continue searching left for first occurrence
+            elif mid_str < search_str:
+                left = mid + 1
+            else:
+                right = mid - 1
     
-    student_id = input("Student ID: ").strip()
-    if student_id:
-        filters['student_id'] = student_id
-    
-    first_name = input("First Name: ").strip()
-    if first_name:
-        filters['first_name'] = first_name
-    
-    last_name = input("Last Name: ").strip()
-    if last_name:
-        filters['last_name'] = last_name
-    
-    course_name = input("Course Name: ").strip()
-    if course_name:
-        filters['course_name'] = course_name
-    
-    semester = input("Semester: ").strip()
-    if semester:
-        filters['semester'] = semester
-    
-    grade_input = input("Final Grade (exact match): ").strip()
-    if grade_input:
-        try:
-            filters['final_grade'] = float(grade_input)
-        except ValueError:
-            print("Warning: Invalid grade value, ignoring grade filter.")
-    
-    if not filters:
-        print("\nNo search criteria provided. Showing all records.")
-        display_all_records(students)
-        return
-    
-    # Filter records
-    filtered = []
-    for student in students:
-        match = True
-        for key, value in filters.items():
-            if key == 'final_grade':
-                # Exact match for numeric grade
-                if student[key] != value:
-                    match = False
+    # If we found a match, collect all matching records (handles duplicates)
+    if first_index != -1:
+        # Collect all matches starting from first_index
+        i = first_index
+        while i < len(students):
+            current_value = students[i][attribute]
+            if isinstance(search_value, (int, float)) and isinstance(current_value, (int, float)):
+                if current_value == search_value:
+                    results.append(students[i])
+                    i += 1
+                else:
                     break
             else:
-                # Case-insensitive partial match for string fields
-                if value.lower() not in str(student[key]).lower():
-                    match = False
+                if str(current_value).lower() == str(search_value).lower():
+                    results.append(students[i])
+                    i += 1
+                else:
                     break
         
-        if match:
-            filtered.append(student)
+        # Also check backwards for any matches before first_index
+        i = first_index - 1
+        while i >= 0:
+            current_value = students[i][attribute]
+            if isinstance(search_value, (int, float)) and isinstance(current_value, (int, float)):
+                if current_value == search_value:
+                    results.insert(0, students[i])
+                    i -= 1
+                else:
+                    break
+            else:
+                if str(current_value).lower() == str(search_value).lower():
+                    results.insert(0, students[i])
+                    i -= 1
+                else:
+                    break
     
-    if filtered:
-        print(f"\nFound {len(filtered)} matching record(s):")
-        display_all_records(filtered)
+    return results
+
+
+def filter_records(students: List[Dict[str, Any]]) -> None:
+    """Search records by a selected data type using binary search."""
+    if not students:
+        print("\nNo records to search.")
+        return
+    
+    print("\n--- Search Records ---")
+    print("Select data type to search by:")
+    print("1. student_id (string)")
+    print("2. first_name (string)")
+    print("3. last_name (string)")
+    print("4. course_name (string)")
+    print("5. semester (string)")
+    print("6. final_grade (numeric)")
+    
+    choice = input("\nSelect attribute (1-6): ").strip()
+    
+    attribute_map = {
+        "1": "student_id",
+        "2": "first_name",
+        "3": "last_name",
+        "4": "course_name",
+        "5": "semester",
+        "6": "final_grade"
+    }
+    
+    if choice not in attribute_map:
+        print("Invalid choice.")
+        return
+    
+    attribute = attribute_map[choice]
+    
+    # Get search value
+    if attribute == "final_grade":
+        try:
+            search_value = float(input(f"Enter {attribute} to search for: ").strip())
+        except ValueError:
+            print("Error: Final grade must be a number.")
+            return
     else:
-        print("\nNo records found matching the criteria.")
+        search_value = input(f"Enter {attribute} to search for: ").strip()
+        if not search_value:
+            print("Error: Search value cannot be empty.")
+            return
+    
+    # Sort the records by the selected attribute first (required for binary search)
+    print(f"\nSorting records by {attribute} for binary search...")
+    sorted_students = quicksort(students, attribute, reverse=False)
+    
+    # Perform binary search
+    results = binary_search(sorted_students, attribute, search_value)
+    
+    if results:
+        print(f"\nFound {len(results)} matching record(s):")
+        display_all_records(results)
+    else:
+        print(f"\nNo records found with {attribute} = '{search_value}'.")
 
 
 def main_menu() -> None:
